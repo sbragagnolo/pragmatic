@@ -72,5 +72,5 @@ PRGMarkdownFormatter >> subtitleFor: aTitle level: aLevel [
 
 { #category : #'as yet unclassified' }
 PRGMarkdownFormatter >> titleFor: aTitle level: aLevel [
-	^ ('' padLeftTo: aLevel with: $#) , aTitle
+	^ ('' padLeftTo: aLevel with: $#) ,' ', aTitle
 ]
