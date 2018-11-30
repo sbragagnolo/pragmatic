@@ -33,22 +33,26 @@ PRGWriter >> writeClass: aClass on: aStream onDepth: aLevel [
 			aStream nextPutAll: formater separator.
 			examples do: [ :p | aStream nextPutAll: (formater examplePragmaMethod: p level: aLevel) ].
 			aStream nextPutAll: formater separator ].
-	aStream nextPutAll: (formater subtitleFor: 'Properties' level: aLevel).
-	aStream nextPutAll: formater separator.
-	aClass
-		instanceVariableNamesDo: [ :i | 
-			aStream nextPutAll: (formater propertyCommentFor: i atClass: aClass level: aLevel).
+	aClass instanceVariables
+		ifNotEmpty: [ aStream nextPutAll: (formater subtitleFor: 'Properties' level: aLevel).
+			aStream nextPutAll: formater separator.
+			aClass
+				instanceVariableNamesDo: [ :i | 
+					aStream nextPutAll: (formater propertyCommentFor: i atClass: aClass level: aLevel).
+					aStream nextPutAll: formater separator ].
 			aStream nextPutAll: formater separator ].
-	aStream nextPutAll: formater separator.
-	aStream nextPutAll: (formater subtitleFor: 'Methods' level: aLevel).
-	aStream nextPutAll: formater separator.
 	methods := (Pragma allNamed: #doc: from: aClass to: aClass) asOrderedCollection.
-	methods do: [ :p | self writePragmaMethod: p on: aStream level: aLevel + 2 ].
-	aStream nextPutAll: formater separator.
-	aStream nextPutAll: (formater subtitleFor: 'Class Methods' level: aLevel).
-	aStream nextPutAll: formater separator.
+	methods
+		ifNotEmpty: [ aStream nextPutAll: (formater subtitleFor: 'Methods' level: aLevel).
+			aStream nextPutAll: formater separator.
+			methods do: [ :p | self writePragmaMethod: p on: aStream level: aLevel + 2 ].
+			aStream nextPutAll: formater separator ].
 	methods := (Pragma allNamed: #doc: from: aClass class to: aClass class) asOrderedCollection.
-	methods do: [ :p | self writePragmaMethod: p on: aStream level: aLevel + 2 ]
+	methods
+		ifNotEmpty: [ aStream nextPutAll: (formater subtitleFor: 'Class Methods' level: aLevel).
+			aStream nextPutAll: formater separator.
+			methods do: [ :p | self writePragmaMethod: p on: aStream level: aLevel + 2 ].
+			aStream nextPutAll: formater separator ]
 ]
 
 { #category : #writing }
