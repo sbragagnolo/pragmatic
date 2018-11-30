@@ -61,7 +61,7 @@ PRGWriter >> writePackage: aPackage on: aStream onDepth: aLevel [
 	aStream nextPutAll: formater separator.
 	(aPackage classes select: [ :c | c superclass = PackageManifest ])
 		do: [ :manifest | 
-			aStream nextPutAll: (formater subtitleFor: 'Manifast' level: aLevel).
+			aStream nextPutAll: (formater subtitleFor: 'Manifest' level: aLevel).
 			aStream nextPutAll: formater separator.
 			aStream nextPutAll: (formater classCommentFor: manifest comment level: aLevel).
 			aStream nextPutAll: (formater subtitleFor: 'Project Examples' level: aLevel).
