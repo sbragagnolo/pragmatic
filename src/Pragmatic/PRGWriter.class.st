@@ -20,13 +20,19 @@ PRGWriter >> formater: aPRGMarkdownFormatter [
 ]
 
 { #category : #writing }
-PRGWriter >> write: aClass on: aStream onDepth: aLevel [
-	| methods |
+PRGWriter >> writeClass: aClass on: aStream onDepth: aLevel [
+	| methods examples |
 	aStream nextPutAll: (formater titleFor: aClass name level: aLevel).
 	aStream nextPutAll: formater separator.
 	aStream nextPutAll: (formater classCommentFor: aClass comment level: aLevel).
 	aStream nextPutAll: formater separator.
 	aStream nextPutAll: formater separator.
+	examples := Pragma allNamed: #example from: aClass class to: aClass class.
+	examples
+		ifNotEmpty: [ aStream nextPutAll: (formater subtitleFor: 'Examples: ' level: aLevel).
+			aStream nextPutAll: formater separator.
+			examples do: [ :p | aStream nextPutAll: (formater examplePragmaMethod: p level: aLevel) ].
+			aStream nextPutAll: formater separator ].
 	aStream nextPutAll: (formater subtitleFor: 'Properties' level: aLevel).
 	aStream nextPutAll: formater separator.
 	aClass
@@ -46,11 +52,33 @@ PRGWriter >> write: aClass on: aStream onDepth: aLevel [
 ]
 
 { #category : #writing }
+PRGWriter >> writePackage: aPackage on: aStream onDepth: aLevel [
+	aStream nextPutAll: (formater titleFor: aPackage name level: aLevel).
+	aStream nextPutAll: formater separator.
+	(aPackage classes select: [ :c | c superclass = PackageManifest ])
+		do: [ :manifest | 
+			aStream nextPutAll: (formater subtitleFor: 'Manifast' level: aLevel).
+			aStream nextPutAll: formater separator.
+			aStream nextPutAll: (formater classCommentFor: manifest comment level: aLevel).
+			aStream nextPutAll: (formater subtitleFor: 'Project Examples' level: aLevel).
+			aStream nextPutAll: formater separator.
+			(Pragma allNamed: #example from: manifest class to: manifest class) do: [ :p | aStream nextPutAll: (formater examplePragmaMethod: p level: aLevel) ].
+			aStream nextPutAll: formater separator.
+			aStream nextPutAll: formater separator ].
+	(aPackage classes asSortedCollection: [ :a :b | a name < b name ])
+		do: [ :c | 
+			(Pragma allNamed: #doc: from: c to: c) , (Pragma allNamed: #doc: from: c class to: c class)
+				ifNotEmpty: [ self writeClass: c on: aStream onDepth: aLevel + 1.
+					aStream nextPutAll: formater separator ] ]
+]
+
+{ #category : #writing }
 PRGWriter >> writePragmaMethod: aPragma on: aWriteStream level: anInteger [
-	aWriteStream nextPutAll: (formater titleFor: aPragma method sourceCode lines first level: anInteger).
+	aWriteStream nextPutAll: (formater titleFor:aPragma method methodClass  name, '>>', aPragma method sourceCode lines first level: anInteger).
 	aWriteStream nextPutAll: formater separator.
 	aWriteStream nextPutAll: (formater methodComment: aPragma arguments first level: anInteger).
 	aWriteStream nextPutAll: formater separator.
-	aWriteStream nextPutAll: (formater code: aPragma method sourceCode level: anInteger).
 	aWriteStream nextPutAll: formater separator.
+	"aWriteStream nextPutAll: (formater code: aPragma method sourceCode level: anInteger).
+	aWriteStream nextPutAll: formater separator."
 ]

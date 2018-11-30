@@ -29,13 +29,25 @@ PRGMarkdownFormatter >> code: aString level: anInteger [
 ]
 
 { #category : #writing }
-PRGMarkdownFormatter >> methodComment: aString level: anInteger [ 
-	^ aString 
+PRGMarkdownFormatter >> examplePragmaMethod: pragma level: aLevel [
+	| stream pragmalessCode code |
+	code := self newLine join: pragma method sourceCode lines allButFirst.
+	stream := pragma method sourceCode readStream.
+	stream upToAll: '<example>'.
+	pragmalessCode := stream upToEnd.
+	^ '```smalltalk
+{1}
+{2}
+```
+'
+		format:
+			{pragma method sourceCode lines first.
+			pragmalessCode}
 ]
 
 { #category : #writing }
-PRGMarkdownFormatter >> methodCommentForPragmaMethod: aPragma atClass: aClass level: anInteger [ 
-	self shouldBeImplemented.
+PRGMarkdownFormatter >> methodComment: aString level: anInteger [ 
+	^ aString 
 ]
 
 { #category : #'as yet unclassified' }
