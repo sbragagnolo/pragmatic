@@ -57,7 +57,7 @@ PRGWriter >> writeClass: aClass on: aStream onDepth: aLevel [
 
 { #category : #writing }
 PRGWriter >> writePackage: aPackage on: aStream onDepth: aLevel [
-	aStream nextPutAll: (formater titleFor: aPackage name, ' - Generated Doc' level: aLevel).
+	aStream nextPutAll: (formater titleFor: aPackage name , ' - Generated Doc' level: aLevel).
 	aStream nextPutAll: formater separator.
 	(aPackage classes select: [ :c | c superclass = PackageManifest ])
 		do: [ :manifest | 
@@ -66,7 +66,9 @@ PRGWriter >> writePackage: aPackage on: aStream onDepth: aLevel [
 			aStream nextPutAll: (formater classCommentFor: manifest comment level: aLevel).
 			aStream nextPutAll: (formater subtitleFor: 'Project Examples' level: aLevel).
 			aStream nextPutAll: formater separator.
-			(Pragma allNamed: #example from: manifest class to: manifest class) do: [ :p | aStream nextPutAll: (formater examplePragmaMethod: p level: aLevel) ].
+			((Pragma allNamed: #example from: manifest class to: manifest class)
+				asSortedCollection: [ :a :b | a method category < b method category ])
+				do: [ :p | aStream nextPutAll: (formater examplePragmaMethod: p level: aLevel) ].
 			aStream nextPutAll: formater separator.
 			aStream nextPutAll: formater separator ].
 	(aPackage definedClasses asSortedCollection: [ :a :b | a name < b name ])
