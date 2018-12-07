@@ -13,10 +13,10 @@ PRGMarkdownFormatter >> classCommentFor: aClassComment level: alevel [
 PRGMarkdownFormatter >> code: aString level: anInteger [
 	| stream pragmalessCode |
 	stream := aString readStream.
-	stream upToAll: '<doc:'.
+	stream upToAll: '<doc'.
 	pragmalessCode := stream atEnd
 		ifTrue: [ aString ]
-		ifFalse: [ stream upToAll: '''>'.
+		ifFalse: [ stream upToAll: '>'.
 			stream upToEnd ].
 	^ self
 		sanitize:
