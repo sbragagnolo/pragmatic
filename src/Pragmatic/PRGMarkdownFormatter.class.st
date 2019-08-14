@@ -1,3 +1,6 @@
+"
+Spits the documentation as Markdown
+"
 Class {
 	#name : #PRGMarkdownFormatter,
 	#superclass : #Object,

@@ -1,3 +1,6 @@
+"
+Writes documentation analyzed from pragmas by using a formatter.
+"
 Class {
 	#name : #PRGWriter,
 	#superclass : #Object,
