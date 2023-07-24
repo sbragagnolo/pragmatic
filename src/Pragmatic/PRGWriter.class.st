@@ -123,6 +123,7 @@ PRGWriter >> writeDocumentation: aManifest sending: aSymbol into: aStream titled
 
 	aStream nextPutAll:
 		(formater titleFor: aManifest package name , ' - ' , aTitle level: 1).
+	aStream nextPutAll: formater separator.
 	(aManifest perform: aSymbol) do: [ :package |
 		self writePackage: package on: aStream onDepth: 1 ].
 	^ aStream
