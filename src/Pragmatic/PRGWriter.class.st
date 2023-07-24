@@ -75,6 +75,16 @@ PRGWriter >> processPropertiesOn: aClass level: aLevel stream: aStream [
 ]
 
 { #category : #writing }
+PRGWriter >> writeApi: aManifest into: stream [
+
+	^ self
+		  writeDocumentation: aManifest
+		  sending: #apiPackages
+		  into: stream
+		  titled: #API
+]
+
+{ #category : #writing }
 PRGWriter >> writeClass: aClass on: aStream onDepth: aLevel [
 	| examples |
 	aStream nextPutAll: (formater titleFor: aClass name level: aLevel).
@@ -109,21 +119,17 @@ PRGWriter >> writeClass: aClass on: aStream onDepth: aLevel [
 ]
 
 { #category : #writing }
+PRGWriter >> writeDocumentation: aManifest sending: aSymbol into: aStream titled: aTitle [
+
+	aStream nextPutAll:
+		(formater titleFor: aManifest package name , ' - ' , aTitle level: 1).
+	(aManifest perform: aSymbol) do: [ :package |
+		self writePackage: package on: aStream onDepth: 1 ].
+	^ aStream
+]
+
+{ #category : #writing }
 PRGWriter >> writePackage: aPackage on: aStream onDepth: aLevel [
-	aStream nextPutAll: (formater titleFor: aPackage name , ' - Generated Doc' level: aLevel).
-	aStream nextPutAll: formater separator.
-	(aPackage classes select: [ :c | c superclass = PackageManifest ])
-		do: [ :manifest | 
-			aStream nextPutAll: (formater subtitleFor: 'Manifest' level: aLevel).
-			aStream nextPutAll: formater separator.
-			aStream nextPutAll: (formater classCommentFor: manifest comment level: aLevel).
-			self
-				processPragmaExampleOn: manifest
-				titled: 'Project Examples'
-				level: aLevel
-				stream: aStream.
-			aStream nextPutAll: formater separator.
-			aStream nextPutAll: formater separator ].
 	(aPackage definedClasses asSortedCollection: [ :a :b | a name < b name ])
 		do: [ :c | 
 			(self hasToBeDocumented: c)
@@ -140,6 +146,27 @@ PRGWriter >> writePragmaMethod: aPragma on: aWriteStream level: anInteger [
 	aWriteStream nextPutAll: formater separator.
 	"aWriteStream nextPutAll: (formater code: aPragma method sourceCode level: anInteger).
 	aWriteStream nextPutAll: formater separator."
+]
+
+{ #category : #writing }
+PRGWriter >> writeReadme: aManifest into: aStream [
+
+	aStream nextPutAll:
+		(formater titleFor: aManifest package name , ' - ReadMe' level: 1).
+	aStream nextPutAll: formater separator.
+
+	aStream nextPutAll: (formater subtitleFor: 'Manifest' level: 1).
+	aStream nextPutAll: formater separator.
+	aStream nextPutAll:
+		(formater classCommentFor: aManifest comment level: 1).
+	self
+		processPragmaExampleOn: aManifest
+		titled: 'Project Examples'
+		level: 1
+		stream: aStream.
+	aStream nextPutAll: formater separator.
+	aStream nextPutAll: formater separator.
+	^ aStream
 ]
 
 { #category : #writing }
