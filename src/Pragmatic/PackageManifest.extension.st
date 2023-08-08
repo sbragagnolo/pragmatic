@@ -19,3 +19,9 @@ PackageManifest class >> readme [
 	^ String streamContents: [ :stream |
 		  PRGWriter markup writeReadme: self into: stream ]
 ]
+
+{ #category : #'*Pragmatic' }
+PackageManifest class >> tags: anArray [
+
+	^ self package classTags select: [ :ct | anArray includes: ct name ]
+]
