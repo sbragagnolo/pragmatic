@@ -142,7 +142,7 @@ PRGWriter >> writeDocumentation: aManifest sending: aSymbol into: aStream titled
 
 { #category : #writing }
 PRGWriter >> writePackage: aPackage on: aStream onDepth: aLevel [
-	(aPackage definedClasses asSortedCollection: [ :a :b | a name < b name ])
+	(aPackage definedClassesPragmatic asSortedCollection: [ :a :b | a name < b name ])
 		do: [ :c | 
 			(self hasToBeDocumented: c)
 				ifTrue: [ self writeClass: c on: aStream onDepth: aLevel + 1.
