@@ -63,6 +63,17 @@ PRGWriter >> processPragmaExampleOn: aClass titled: aTitle level: aLevel stream:
 ]
 
 { #category : #private }
+PRGWriter >> processPragmaLoadOn: aClass titled: aTitle level: aLevel stream: aStream [
+	| examples |
+	examples := Pragma allNamed: #load from: aClass class to: aClass class.
+	examples
+		ifNotEmpty: [ aStream nextPutAll: (formater subtitleFor: aTitle level: aLevel).
+			aStream nextPutAll: formater separator.
+			examples do: [ :p | aStream nextPutAll: (formater loadPragmaMethod: p level: aLevel) ].
+			aStream nextPutAll: formater separator ]
+]
+
+{ #category : #private }
 PRGWriter >> processPropertiesOn: aClass level: aLevel stream: aStream [
 	aClass instanceVariables
 		ifNotEmpty: [ aStream nextPutAll: (formater subtitleFor: 'Properties' level: aLevel).
@@ -160,6 +171,11 @@ PRGWriter >> writeReadme: aManifest into: aStream [
 	aStream nextPutAll: formater separator.
 	aStream nextPutAll:
 		(formater classCommentFor: aManifest comment level: 1).
+	self
+		processPragmaLoadOn: aManifest
+		titled: 'Load'
+		level: 1
+		stream: aStream.
 	self
 		processPragmaExampleOn: aManifest
 		titled: 'Project Examples'

@@ -53,6 +53,25 @@ PRGMarkdownFormatter >> examplePragmaMethod: pragma level: aLevel [
 ]
 
 { #category : #writing }
+PRGMarkdownFormatter >> loadPragmaMethod: pragma level: aLevel [
+	| stream pragmalessCode code |
+	code := self newLine join: pragma method sourceCode lines allButFirst.
+	stream := pragma method sourceCode readStream.
+	stream upToAll: '<load>'.
+	pragmalessCode := stream upToEnd.
+	^ self
+		sanitize:
+			('```smalltalk
+{1}
+{2}
+```
+'
+				format:
+					{pragma method sourceCode lines first.
+					pragmalessCode})
+]
+
+{ #category : #writing }
 PRGMarkdownFormatter >> methodComment: aString level: anInteger [
 	^ self sanitize: aString
 ]
