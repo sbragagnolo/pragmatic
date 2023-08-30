@@ -29,10 +29,23 @@ PRGWriter >> hasToBeDocumented: c [
 				and: [ (Pragma allNamed: #doc from: c class to: c class) isEmpty and: [ (Pragma allNamed: #doc from: c class to: c class) isEmpty ] ] ]) not
 ]
 
+{ #category : #'as yet unclassified' }
+PRGWriter >> pragmas: aString for: aClass [
+
+	| pragmas |
+	pragmas := Pragma allNamed: aString from: aClass to: aClass.
+
+
+	pragmas := pragmas sort: [ :a | a method protocol ] asSortFunction
+		           , [ :a | a method selector ] asSortFunction.
+	^ pragmas asOrderedCollection
+]
+
 { #category : #private }
 PRGWriter >> processPragmaDocOn: aClass titled: aTitle level: aLevel stream: aStream [
 	| methods |
-	methods := (Pragma allNamed: #doc: from: aClass to: aClass) asOrderedCollection.
+
+	methods :=self pragmas: #doc: for: aClass.
 	methods
 		ifNotEmpty: [ aStream nextPutAll: (formater subtitleFor: aTitle level: aLevel).
 			aStream nextPutAll: formater separator.
@@ -43,7 +56,7 @@ PRGWriter >> processPragmaDocOn: aClass titled: aTitle level: aLevel stream: aSt
 { #category : #private }
 PRGWriter >> processPragmaDocShortOn: aClass titled: aTitle level: aLevel stream: aStream [
 	| methods |
-	methods := (Pragma allNamed: #doc from: aClass to: aClass) asOrderedCollection.
+	methods := self pragmas: #doc for: aClass.
 	methods
 		ifNotEmpty: [ aStream nextPutAll: (formater subtitleFor: aTitle level: aLevel).
 			aStream nextPutAll: formater separator.
@@ -53,24 +66,29 @@ PRGWriter >> processPragmaDocShortOn: aClass titled: aTitle level: aLevel stream
 
 { #category : #private }
 PRGWriter >> processPragmaExampleOn: aClass titled: aTitle level: aLevel stream: aStream [
+
 	| examples |
-	examples := Pragma allNamed: #example from: aClass class to: aClass class.
-	examples
-		ifNotEmpty: [ aStream nextPutAll: (formater subtitleFor: aTitle level: aLevel).
-			aStream nextPutAll: formater separator.
-			examples do: [ :p | aStream nextPutAll: (formater examplePragmaMethod: p level: aLevel) ].
-			aStream nextPutAll: formater separator ]
+
+	examples := self pragmas: #example for: aClass class.
+	examples ifNotEmpty: [ 
+		aStream nextPutAll: (formater subtitleFor: aTitle level: aLevel).
+		aStream nextPutAll: formater separator.
+		examples do: [ :p | 
+			aStream nextPutAll: (formater examplePragmaMethod: p level: aLevel) ].
+		aStream nextPutAll: formater separator ]
 ]
 
 { #category : #private }
 PRGWriter >> processPragmaLoadOn: aClass titled: aTitle level: aLevel stream: aStream [
+
 	| examples |
-	examples := Pragma allNamed: #load from: aClass class to: aClass class.
-	examples
-		ifNotEmpty: [ aStream nextPutAll: (formater subtitleFor: aTitle level: aLevel).
-			aStream nextPutAll: formater separator.
-			examples do: [ :p | aStream nextPutAll: (formater loadPragmaMethod: p level: aLevel) ].
-			aStream nextPutAll: formater separator ]
+	examples := self pragmas: #load for: aClass.
+	examples ifNotEmpty: [ 
+		aStream nextPutAll: (formater subtitleFor: aTitle level: aLevel).
+		aStream nextPutAll: formater separator.
+		examples do: [ :p | 
+			aStream nextPutAll: (formater loadPragmaMethod: p level: aLevel) ].
+		aStream nextPutAll: formater separator ]
 ]
 
 { #category : #private }
@@ -97,36 +115,53 @@ PRGWriter >> writeApi: aManifest into: stream [
 
 { #category : #writing }
 PRGWriter >> writeClass: aClass on: aStream onDepth: aLevel [
+
 	| examples |
 	aStream nextPutAll: (formater titleFor: aClass name level: aLevel).
 	aStream nextPutAll: formater separator.
-	aStream nextPutAll: (formater classCommentFor: aClass comment level: aLevel).
-	aStream nextPutAll: formater separator.
-	aStream nextPutAll: formater separator.
+	aClass holdsPackageDocumentation ifFalse: [ 
+		aStream nextPutAll:
+			(formater classCommentFor: aClass comment level: aLevel).
+		aStream nextPutAll: formater separator.
+		aStream nextPutAll: formater separator ].
+
 	self
 		processPragmaExampleOn: aClass
 		titled: 'Examples'
 		level: aLevel
 		stream: aStream.
-	examples := Pragma allNamed: #example from: aClass class to: aClass class.
-	examples
-		ifNotEmpty: [ aStream nextPutAll: (formater subtitleFor: 'Examples: ' level: aLevel).
-			aStream nextPutAll: formater separator.
-			examples do: [ :p | aStream nextPutAll: (formater examplePragmaMethod: p level: aLevel) ].
-			aStream nextPutAll: formater separator ].
+	examples := Pragma
+		            allNamed: #example
+		            from: aClass class
+		            to: aClass class.
+	examples ifNotEmpty: [ 
+		aStream nextPutAll:
+			(formater subtitleFor: 'Examples: ' level: aLevel).
+		aStream nextPutAll: formater separator.
+		examples do: [ :p | 
+			aStream nextPutAll: (formater examplePragmaMethod: p level: aLevel) ].
+		aStream nextPutAll: formater separator ].
 	self processPropertiesOn: aClass level: aLevel stream: aStream.
 	self
 		processPragmaDocOn: aClass
 		titled: 'Methods'
 		level: aLevel
 		stream: aStream.
-	self processPragmaDocShortOn: aClass titled: 'Methods code' level: aLevel stream: aStream.
+	self
+		processPragmaDocShortOn: aClass
+		titled: 'Methods code'
+		level: aLevel
+		stream: aStream.
 	self
 		processPragmaDocOn: aClass class
 		titled: 'Class Methods'
 		level: aLevel
 		stream: aStream.
-	self processPragmaDocShortOn: aClass class titled: 'Class Methods code' level: aLevel stream: aStream.
+	self
+		processPragmaDocShortOn: aClass class
+		titled: 'Class Methods code'
+		level: aLevel
+		stream: aStream
 ]
 
 { #category : #writing }

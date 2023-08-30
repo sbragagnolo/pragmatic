@@ -14,6 +14,17 @@ PackageManifest class >> apiPackages [
 ]
 
 { #category : #'*Pragmatic' }
+PackageManifest class >> documentSending: aSelector titled: aTitle [
+
+	^ String streamContents: [ :stream | 
+		  PRGWriter markup
+			  writeDocumentation: self
+			  sending: aSelector
+			  into: stream
+			  titled: aTitle ]
+]
+
+{ #category : #'*Pragmatic' }
 PackageManifest class >> readme [
 
 	^ String streamContents: [ :stream |
