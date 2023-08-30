@@ -142,11 +142,25 @@ PRGWriter >> writeDocumentation: aManifest sending: aSymbol into: aStream titled
 
 { #category : #writing }
 PRGWriter >> writePackage: aPackage on: aStream onDepth: aLevel [
-	(aPackage definedClassesPragmatic asSortedCollection: [ :a :b | a name < b name ])
+	| allClasses |
+
+	allClasses := (aPackage definedClassesPragmatic asSortedCollection: [ :a :b | a name < b name ]).
+	allClasses select: [: a | a holdsPackageDocumentation ] thenDo: [: c | self writePackageComment: c on: aStream].
+	allClasses
 		do: [ :c | 
 			(self hasToBeDocumented: c)
 				ifTrue: [ self writeClass: c on: aStream onDepth: aLevel + 1.
 					aStream nextPutAll: formater separator ] ]
+]
+
+{ #category : #writing }
+PRGWriter >> writePackageComment: aClass on: aStream [
+
+	aStream nextPutAll:
+		(formater titleFor: aClass package name , '  ' level: 1).
+	aStream nextPutAll:
+		(formater classCommentFor: aClass comment level: 1).
+	aStream nextPutAll: formater separator
 ]
 
 { #category : #writing }
